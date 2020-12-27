@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+{% block style %}
+body{
+  background-color: #cccccc;
+}
+::placeholder{
+  font-size: 17px;
+  opacity: 0.7;
+  color: white;
+}
+  .container{
+    padding:10px;
+    border-radius:8px;
+    margin: 80px auto;
+    width:70%;
+    height:350px;
+    background-image:linear-gradient(to bottom right, #0210cf,#cf95ff) ;
+  }
+  .icon{
+    display: block;
+    margin:10px auto;
+    width: 70px;
+    height: 70px;
+  }
+  input[type="text"] , input[type="password"]{
+    color:white;
+    font-size: 17px;
+    background-color:#00000000;
+    display: block;
+    margin:auto;
+    border:solid #000000;
+    outline: none;
+    border-width: 0px 0px 2px 0px;
+  }
+  
+  input[type="submit"]{
+    display: block;
+    margin:30px auto;
+    border:1px solid white ;
+    border-radius: 10px;
+    outline: none;
+    width:35%;
+    height:12%;
+    background-color: #00000000;
+  }
+  input[type="submit"]:hover{
+    background-color:#513cff;
+  }
+  span{
+  display:block;
+margin:auto;
+width:100%;
+text-align:center;
+  color:#95d9a8;
+  font-size:15px;
+  
+  
+  }
+{% endblock %}
+{% block content %}
+  <div class="container">
+    <img class="icon" src="{% static "user.png" %}" alt="user icon" /><br />
+    <form action="" method="post" accept-charset="utf-8" autocomplete="off">
+      {% csrf_token %}
+
+    <input type="text" name="cloudname" id="cloudname" value="" placeholder="cloudname" required/>
+    <span id="cloudm">{{cloud_message}}</span><br/>
+    <input type="password" name="cloudkey" id="cloudkey" value="" placeholder="cloudkey" required/>
+    <span id="keym">{{key_message}}</span>
+    <input type="submit" name="login" id="login" value="Access" />
+    </form>
+
+  </div>
+<script type="text/javascript" charset="utf-8">
+$("#login").on("click",function(){
+  var key = $("#cloudkey").val();
+  var date = new Date();
+date.setTime(date.getTime() + (10000));
+//document.cookie=escape("key="+key+";expires="+date+";"+"Session=1"+";");
+$.cookie("key",key,{expires:date,Session:true});
+});
+  $("#cloudname").on("change paste keyup",function(){
+token = $("input[name='csrfmiddlewaretoken']").val();
+    var cloudname = $("#cloudname").val();
+    $.ajax({
+      url: "check",
+      type:"POST",
+      data: {"csrfmiddlewaretoken":token,"cloudname":cloudname}
+    ,
+    success: function(result){
+      if(result=="0"){
+      $("#cloudm").html("Create new cloud");
+      $("#keym").html("Create new cloud key");
+      $("#login").val("Create");
+      }else if(result=="1"){
+      $("#cloudm").html("This Cloud exists");
+      $("#keym").html("Enter your key");
+      $("#login").val("Access");
+      }
+}
+    })
+  });
+</script>
+{% endblock %}
