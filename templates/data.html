@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block style %}
+body{
+background-color:#000000;
+}
+.container {
+margin:10px auto;
+padding:10px;
+width:100%;
+background-color:#000000;
+border-radius:10px;
+}
+ .data{
+ padding:10px;
+    display: block;
+    margin:10px auto;
+    width:90%;
+    height:500px;
+    background-color:#00000000;
+    color:#c4ffca;
+    outline:none;
+    border:2px dotted grey;
+    border-radius:10px;
+  }
+#save{
+display:block;
+margin:10px auto;
+background-color:#00000000;
+color:white;
+border:1px solid white;
+border-radius:10px;
+outline:none;
+width:25%;
+height:20px;
+}
+#save:hover{
+background-color:white;
+color:black;
+border:none;
+}
+a{
+color:#a6ddea;
+float:right;
+text-decoration:none;
+margin:5px;
+}
+.nav{
+background-color:#00000000;
+padding:10px;
+font-size:20px;
+}
+span{
+color:#a6ddea;
+margin:5px;
+float:left;
+}
+{% endblock %}
+{% block content %}
+  {% csrf_token %}
+  <nav class="nav">
+<span>Cloud : {{cloud}}</span>
+<a href="logout" >Logout</a>
+  </nav>
+
+  <textarea name="data" id="data" class="data">
+
+  </textarea>
+  <input type="button" name="save" id="save" value="Save Data" onclick="savedata()"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js" integrity="sha512-nOQuvD9nKirvxDdvQ9OMqe2dgapbPB7vYAMrzJihw5m+aNcf0dX53m6YxM4LgA9u8e9eg9QX+/+mPu8kCNpV2A==" crossorigin="anonymous"></script>
+  <script type="text/javascript" charset="utf-8">
+ key = $.cookie("key");
+ $(window).on("load",function(){
+   $("#data").val(CryptoJS.AES.decrypt("{{data}}",key).toString(CryptoJS.enc.Utf8));
+
+ });
+ 
+token = $("input[name='csrfmiddlewaretoken']").val();
+  $("#data").on("change paste keyup",function(){
+    savedata();
+  })
+  function savedata(){
+    btn = $("#save")
+    btn.val("saving..");
+    data = $("#data").val();
+    console.log("encrypting");
+    console.log(data);
+    encdata = CryptoJS.AES.encrypt(data,key).toString();
+    $.ajax({
+    
+      url : "save",
+      type : "POST",
+      data : {"data": encdata,
+              "csrfmiddlewaretoken": token
+      },
+      success : function(){
+        btn.val("Save data");
+      }
+      
+    })
+  }
+  </script>
+ {% endblock %}
